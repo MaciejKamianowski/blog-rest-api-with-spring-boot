@@ -1,10 +1,12 @@
 package com.kamianowski.maciej.blog.entity;
 
+import com.kamianowski.maciej.blog.payload.PostDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.lang.reflect.Field;
 
 @Data
 @AllArgsConstructor
@@ -36,4 +38,22 @@ public class Post {
             name = "content", nullable = false
     )
     private String content;
+
+    public PostDto convertEntityToDto() {
+        Field [] entityFields = this.getClass().getDeclaredFields();
+        Object [] values = new Object[entityFields.length];
+        PostDto dto = new PostDto();
+        // assign values to Dto
+        for (int i = 0; i < entityFields.length; i++) {
+            try {
+                values[i] = entityFields[i].get(this);
+                Field field = dto.getClass().getDeclaredField(entityFields[i].getName());
+                field.setAccessible(true);
+                field.set(dto, values[i]);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        return dto;
+    }
 }
