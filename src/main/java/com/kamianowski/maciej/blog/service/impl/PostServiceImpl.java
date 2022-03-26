@@ -6,6 +6,9 @@ import com.kamianowski.maciej.blog.repository.PostRepository;
 import com.kamianowski.maciej.blog.service.PostService;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
+import java.util.Arrays;
+
 @Service
 public class PostServiceImpl implements PostService {
 
@@ -26,10 +29,10 @@ public class PostServiceImpl implements PostService {
         Post newPost = postRepository.save(post);
 
         // convert Entity to dto
-        PostDto postResponse = new PostDto();
-        postResponse.setId(newPost.getId());
-        postResponse.setContent(newPost.getContent());
-        postResponse.setDescription(newPost.getDescription());
+//        PostDto postResponse = new PostDto();
+        PostDto postResponse = post.convertEntityToDto();
         return postResponse;
     }
+
+
 }
