@@ -58,5 +58,12 @@ public class PostServiceImpl implements PostService {
         return updatedPost.convertEntityToDto();
     }
 
+    @Override
+    public void deletePostById(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Post", "id", id.toString()));
+        postRepository.delete(post);
+    }
+
 
 }
