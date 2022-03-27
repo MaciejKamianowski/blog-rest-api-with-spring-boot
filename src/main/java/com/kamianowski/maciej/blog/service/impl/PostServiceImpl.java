@@ -1,12 +1,14 @@
 package com.kamianowski.maciej.blog.service.impl;
 
 import com.kamianowski.maciej.blog.entity.Post;
+import com.kamianowski.maciej.blog.exception.ResourceNotFoundException;
 import com.kamianowski.maciej.blog.payload.PostDto;
 import com.kamianowski.maciej.blog.repository.PostRepository;
 import com.kamianowski.maciej.blog.service.PostService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,6 +37,14 @@ public class PostServiceImpl implements PostService {
                 .stream()
                 .map(post -> post.convertEntityToDto())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public PostDto getPostById(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Post", "id", id.toString()));
+
+        return post.convertEntityToDto();
     }
 
 
