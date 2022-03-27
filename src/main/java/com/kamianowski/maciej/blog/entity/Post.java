@@ -56,4 +56,22 @@ public class Post {
         }
         return dto;
     }
+
+    public void assignEntityFieldsByDto(PostDto dto) {
+        Field [] entityFields = this.getClass().getDeclaredFields();
+        Field [] dtoFields = dto.getClass().getDeclaredFields();
+
+        for (int i = 0; i < entityFields.length; i++) {
+            try {
+                if (entityFields[i].getName().equals("id")) {
+                    continue;
+                }
+                dtoFields[i].setAccessible(true);
+                entityFields[i].set(this, dtoFields[i].get(dto));
+            }
+            catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
