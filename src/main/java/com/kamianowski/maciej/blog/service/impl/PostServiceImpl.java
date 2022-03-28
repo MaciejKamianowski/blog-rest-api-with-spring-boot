@@ -3,6 +3,7 @@ package com.kamianowski.maciej.blog.service.impl;
 import com.kamianowski.maciej.blog.entity.Post;
 import com.kamianowski.maciej.blog.exception.ResourceNotFoundException;
 import com.kamianowski.maciej.blog.payload.PostDto;
+import com.kamianowski.maciej.blog.payload.PostResponse;
 import com.kamianowski.maciej.blog.repository.PostRepository;
 import com.kamianowski.maciej.blog.service.PostService;
 import org.springframework.data.domain.Page;
@@ -35,7 +36,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDto> getAllPosts(Integer pageNo, Integer pageSize) {
+    public PostResponse getAllPosts(Integer pageNo, Integer pageSize) {
 
         // create Pageable instance
         Pageable pageable = PageRequest.of(pageNo, pageSize);
@@ -44,10 +45,15 @@ public class PostServiceImpl implements PostService {
         // get content for page object
         List<Post> listOfPosts = posts.getContent();
 
-        return listOfPosts
-                .stream()
-                .map(post -> post.convertEntityToDto())
-                .collect(Collectors.toList());
+        List<PostDto> content = listOfPosts.stream().map(post -> post.convertEntityToDto()).collect(Collectors.toList());
+        PostResponse postResponse = new PostResponse();
+        postResponse.setContent(content);
+        postResponse.setPageNo(posts.getNumber());
+        postResponse.setPageSize(posts.getSize());
+        postResponse.setTotalElements(posts.getTotalElements());
+        postResponse.setTotalPages(posts.getTotalPages());
+        postResponse.setLast(posts.isLast());
+        return postResponse;
     }
 
     @Override

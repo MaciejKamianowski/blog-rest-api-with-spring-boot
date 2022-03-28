@@ -1,6 +1,7 @@
 package com.kamianowski.maciej.blog.controller;
 
 import com.kamianowski.maciej.blog.payload.PostDto;
+import com.kamianowski.maciej.blog.payload.PostResponse;
 import com.kamianowski.maciej.blog.service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ public class PostController {
 
     // get all posts
     @GetMapping
-    public List<PostDto> getAllPosts(
+    public PostResponse getAllPosts(
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) Integer pageNo,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize
     ) {
