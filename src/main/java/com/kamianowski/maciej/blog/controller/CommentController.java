@@ -4,10 +4,9 @@ import com.kamianowski.maciej.blog.payload.CommentDto;
 import com.kamianowski.maciej.blog.service.CommentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -19,12 +18,16 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    @RequestMapping("/posts/{postId}/comments")
+    @PostMapping("/posts/{postId}/comments")
     public ResponseEntity<CommentDto> createComment(
             @PathVariable(value = "postId") Long postId,
             @RequestBody CommentDto dto) {
         return new ResponseEntity<>(commentService.createComment(postId, dto), HttpStatus.CREATED);
     }
 
+    @GetMapping("/posts/{postId}/comments")
+    public List<CommentDto> getCommentsByPostId(@PathVariable(value = "postId") Long postId) {
+        return commentService.getCommentsByPostId(postId);
+    }
 
 }
