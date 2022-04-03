@@ -1,0 +1,57 @@
+package com.kamianowski.maciej.blog.service.impl;
+
+import com.kamianowski.maciej.blog.entity.Comment;
+import com.kamianowski.maciej.blog.entity.Post;
+import com.kamianowski.maciej.blog.exception.ResourceNotFoundException;
+import com.kamianowski.maciej.blog.payload.CommentDto;
+import com.kamianowski.maciej.blog.repository.CommentRepository;
+import com.kamianowski.maciej.blog.repository.PostRepository;
+import com.kamianowski.maciej.blog.service.CommentService;
+import org.springframework.stereotype.Service;
+
+@Service
+public class CommentServiceImpl implements CommentService {
+
+    private CommentRepository commentRepository;
+    private PostRepository postRepository;
+
+    public CommentServiceImpl(CommentRepository commentRepository, PostRepository postRepository) {
+        this.commentRepository = commentRepository;
+        this.postRepository = postRepository;
+    }
+
+    @Override
+    public CommentDto createComment(Long postId, CommentDto dto) {
+        Comment comment = mapToEntity(dto);
+
+        // retrieve post entity by id
+        Post post = postRepository
+                .findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId.toString()));
+        // set post to comment entity
+        comment.setPost(post);
+
+        // save comment entity in database
+        Comment newComment = commentRepository.save(comment);
+
+        return mapToDto(newComment);
+    }
+
+    private CommentDto mapToDto(Comment comment) {
+        CommentDto dto = new CommentDto();
+        dto.setBody(comment.getBody());
+        dto.setId(comment.getId());
+        dto.setEmail(comment.getEmail());
+        dto.setName(comment.getName());
+        return dto;
+    }
+
+    private Comment mapToEntity(CommentDto dto) {
+        Comment comment = new Comment();
+        comment.setId(dto.getId());
+        comment.setBody(dto.getBody());
+        comment.setEmail(dto.getEmail());
+        comment.setName(dto.getName());
+        return comment;
+    }
+}
