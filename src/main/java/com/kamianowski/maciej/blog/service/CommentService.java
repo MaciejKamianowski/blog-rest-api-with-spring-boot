@@ -7,4 +7,5 @@ import java.util.List;
 public interface CommentService {
     CommentDto createComment(Long postId, CommentDto dto);
     List<CommentDto> getCommentsByPostId(Long idPost);
+    CommentDto getCommentById(Long postId, Long commentId);
 }
