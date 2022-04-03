@@ -6,6 +6,7 @@ import com.kamianowski.maciej.blog.payload.PostDto;
 import com.kamianowski.maciej.blog.payload.PostResponse;
 import com.kamianowski.maciej.blog.repository.PostRepository;
 import com.kamianowski.maciej.blog.service.PostService;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,19 +21,21 @@ import java.util.stream.Collectors;
 public class PostServiceImpl implements PostService {
 
     final private PostRepository postRepository;
+    final private ModelMapper modelMapper;
 
-    public PostServiceImpl(PostRepository postRepository) {
+    public PostServiceImpl(PostRepository postRepository, ModelMapper modelMapper) {
         this.postRepository = postRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override
     public PostDto createPost(PostDto dto) {
 
         // convert Dto to entity
-        Post newPost = postRepository.save(dto.convertDtoToEntity());
+        Post newPost = postRepository.save(mapToEntity(dto));
 
         // convert Entity to dto
-        PostDto postResponse = newPost.convertEntityToDto();
+        PostDto postResponse = mapToDto(newPost);
         return postResponse;
     }
 
@@ -51,7 +54,7 @@ public class PostServiceImpl implements PostService {
         // get content for page object
         List<Post> listOfPosts = posts.getContent();
 
-        List<PostDto> content = listOfPosts.stream().map(Post::convertEntityToDto).collect(Collectors.toList());
+        List<PostDto> content = listOfPosts.stream().map(post -> mapToDto(post)).collect(Collectors.toList());
         PostResponse postResponse = new PostResponse();
         postResponse.setContent(content);
         postResponse.setPageNo(posts.getNumber());
@@ -66,8 +69,7 @@ public class PostServiceImpl implements PostService {
     public PostDto getPostById(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", id.toString()));
-
-        return post.convertEntityToDto();
+        return mapToDto(post);
     }
 
     @Override
@@ -75,10 +77,8 @@ public class PostServiceImpl implements PostService {
         // get post by id from the database
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", id.toString()));
-        post.assignEntityFieldsByDto(dto);
-
-        Post updatedPost = postRepository.save(post);
-        return updatedPost.convertEntityToDto();
+        Post updatedPost = postRepository.save(mapToEntity(dto));
+        return mapToDto(updatedPost);
     }
 
     @Override
@@ -88,5 +88,13 @@ public class PostServiceImpl implements PostService {
         postRepository.delete(post);
     }
 
+    private PostDto mapToDto(Post post) {
+        PostDto dto = modelMapper.map(post, PostDto.class);
+        return dto;
+    }
 
+    private Post mapToEntity(PostDto dto) {
+        Post post = modelMapper.map(dto, Post.class);
+        return post;
+    }
 }

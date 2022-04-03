@@ -1,12 +1,10 @@
 package com.kamianowski.maciej.blog.entity;
 
-import com.kamianowski.maciej.blog.payload.PostDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -40,42 +38,6 @@ public class Post {
             name = "content", nullable = false
     )
     private String content;
-
-    public PostDto convertEntityToDto() {
-        Field [] entityFields = this.getClass().getDeclaredFields();
-        Object [] values = new Object[entityFields.length];
-        PostDto dto = new PostDto();
-        // assign values to Dto
-        for (int i = 0; i < entityFields.length; i++) {
-            try {
-                values[i] = entityFields[i].get(this);
-                Field field = dto.getClass().getDeclaredField(entityFields[i].getName());
-                field.setAccessible(true);
-                field.set(dto, values[i]);
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
-        return dto;
-    }
-
-    public void assignEntityFieldsByDto(PostDto dto) {
-        Field [] entityFields = this.getClass().getDeclaredFields();
-        Field [] dtoFields = dto.getClass().getDeclaredFields();
-
-        for (int i = 0; i < entityFields.length; i++) {
-            try {
-                if (entityFields[i].getName().equals("id")) {
-                    continue;
-                }
-                dtoFields[i].setAccessible(true);
-                entityFields[i].set(this, dtoFields[i].get(dto));
-            }
-            catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Comment> comments = new HashSet<>();
